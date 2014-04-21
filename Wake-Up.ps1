@@ -10,7 +10,6 @@
 |==============================================================================>|
 #>
 param($Hour = 9, $minutes = 0)
-. Modules.ps1 | out-null
 function Loud {
     $ws = new-object -com wscript.shell
     1..100 | % {$ws.SendKeys([char]175)}
