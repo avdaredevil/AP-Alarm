@@ -156,11 +156,11 @@ function Quit {
 }
 function Alarm {
     Loud
-    $AlarmScript = "C:\Users\Apoorv\Downloads\Popcornetune.ps1"
+    $AlarmScript = "$PSHell\Popcornetune.ps1"
     if (test-path $AlarmScript -type leaf) {
         cmd /c start /wait /min powershell -ep bypass $AlarmScript
     } else {
-        (ls 'C:\Users\Apoorv\Downloads\Videos\*.mp4')[0] | iex
+        ls '~\Downloads\Videos\*.mp4' | Get-Random | % {Explorer $_}
         start-sleep (60*5) # 5 Minutes!
     }
 }
