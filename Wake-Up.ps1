@@ -13,83 +13,7 @@ param($Hour = 9, $minutes = 0)
 # =======================================START=OF=COMPILER==========================================================|
 #    The Following Code was added by AP-Compiler Version [1.0] To Make this program independent of AP-Core Engine
 # ==================================================================================================================|
-function KeyPressed {
-param([Parameter(Mandatory=$True)][String[]]$Key, $Store="^^^")
-
-    if ($Store -eq "^^^" -and $Host.UI.RawUI.KeyAvailable) {$Store = $Host.UI.RawUI.ReadKey("IncludeKeyUp,NoEcho")} else {if ($Store -eq "^^^") {return $False}}
-    $Ans = $False
-    $Key | % {
-        $SOURCE = $_
-        try {
-            $Ans = $Ans -or (KeyPressedCode $SOURCE $Store)
-        } catch {
-            Foreach ($K in $SOURCE) {
-                [String]$K = $K
-                if ($K.length -gt 4 -and ($K[0,1,-1,-2] -join("")) -eq "~~~~") {
-                    $Ans = $ANS -or (KeyPressedCode (KeyTranslate($K)) $Store)
-                } else {
-                    $Ans = $ANS -or ($K.chars(0) -in $Store.Character)
-                }
-            }
-        }
-    }
-    return $Ans
-}
-
-function Invoke-Ternary {
-param([bool]$decider, [scriptblock]$iftrue, [scriptblock]$iffalse)
-
-    if ($decider) { &$iftrue} else { &$iffalse }
-}
-
-function Time-Adj {
-param([Parameter(Mandatory=$true)][Double]$Milliseconds, $InputType = "Milliseconds", [Switch]$FullForm)
-
-    if ($Milliseconds -eq 0) {return "0 $(?:($fullForm){"Milliseconds"}{"ms"})"}
-    if ($InputType -ne "") {
-        $Conv = @{"Milliseconds" = 1}
-        $Conv += @{"Seconds" = 1000*$Conv.Milliseconds}
-        $Conv += @{"Minutes" = 60*$Conv.Seconds}
-        $Conv += @{"Hours" = 60*$Conv.Minutes}
-        $Conv += @{"Days" = 24*$Conv.Hours}
-        $Conv += @{"Years" = 365.25*$Conv.Days}
-        if ($Conv.ContainsKey($InputType)) {$Milliseconds *= $Conv.$InputType}
-    }
-    $Sign  = ?:($Milliseconds -lt 0){-1}{1}
-    $Milliseconds *= $Sign
-    $Span  = New-TimeSpan (Get-Date -Millisecond 0) $(Get-Date -Millisecond 0).AddMilliseconds($Milliseconds)
-    $Props = ($span | gm | ? {$_ -match "Total"}).name
-    $Sizes = ?:($FullForm){$Props | % {$_.substring(5)}}{@("days","hrs","ms","min","sec")}
-    $Sizes = $Sizes[0,1,3,4,2]
-    $Props = $Props[0,1,3,4,2]
-    $Deg = -1
-    do {
-        $DEG++
-    } while ([System.Math]::Round($Span.($props[$deg]),2) -lt 1)
-    $ans = $Span.($props[$deg]);$unit = $Sizes[$Deg]
-    if ($DEG -eq 0 -and $Span.($props[$deg]) -ge 365.25) {$ans /= 365.25;$unit=?:($FullForm){"Years"}{"yr"}}
-    $Returna = "$($Sign*[System.Math]::Round($ans,2))","$unit"
-    $Returna[1] = ?:($Returna[0] -eq 1){$Returna[1].trimEnd("s")}{$Returna[1]}
-    if ($Returna[1] -eq "m") {$Returna[1] += "s"}
-    Return ($Returna -join(" "))
-}
-
-function Write-AP {
-param([Parameter(Mandatory=$True)][String]$Text)
-
-    $acc  = @(('+','2'),('-','12'),('!','14'),('*','3'))
-    $tb   = '';$func   = $false
-    while ($Text.chars(0) -eq 'x') {$func = $true; $Text = $Text.substring(1).trim()}
-    while ($Text.chars(0) -eq '>') {$tb += "    "; $Text = $Text.substring(1).trim()}
-    $Sign = $Text.chars(0)
-    $Text = $Text.substring(1).trim().replace('/x\','').replace('[.]','[Current Directory]')
-    $vers = $false
-    foreach ($ar in $acc) {if ($ar[0] -eq $sign) {$vers = $true; $clr = $ar[1]; $Sign = "[${Sign}] "}}
-    if (!$vers) {Throw "Incorrect Sign [$Sign] Passed!"}
-    if (!($Silent -and $Sign -eq '[*] ')) {if ($func)  {Write-Host -nonewline -f $clr $tb$Sign$Text} else {write-host -f $clr $tb$Sign$Text}}
-}
-
-Set-Alias ?: Invoke-Ternary
+iex [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(ZnVuY3Rpb24gS2V5UHJlc3NlZCB7CnBhcmFtKFtQYXJhbWV0ZXIoTWFuZGF0b3J5PSRUcnVlKV1bU3RyaW5nW11dJEtleSwgJFN0b3JlPSJeXl4iKQ0KDQogICAgaWYgKCRTdG9yZSAtZXEgIl5eXiIgLWFuZCAkSG9zdC5VSS5SYXdVSS5LZXlBdmFpbGFibGUpIHskU3RvcmUgPSAkSG9zdC5VSS5SYXdVSS5SZWFkS2V5KCJJbmNsdWRlS2V5VXAsTm9FY2hvIil9IGVsc2Uge2lmICgkU3RvcmUgLWVxICJeXl4iKSB7cmV0dXJuICRGYWxzZX19DQogICAgJEFucyA9ICRGYWxzZQ0KICAgICRLZXkgfCAlIHsNCiAgICAgICAgJFNPVVJDRSA9ICRfDQogICAgICAgIHRyeSB7DQogICAgICAgICAgICAkQW5zID0gJEFucyAtb3IgKEtleVByZXNzZWRDb2RlICRTT1VSQ0UgJFN0b3JlKQ0KICAgICAgICB9IGNhdGNoIHsNCiAgICAgICAgICAgIEZvcmVhY2ggKCRLIGluICRTT1VSQ0UpIHsNCiAgICAgICAgICAgICAgICBbU3RyaW5nXSRLID0gJEsNCiAgICAgICAgICAgICAgICBpZiAoJEsubGVuZ3RoIC1ndCA0IC1hbmQgKCRLWzAsMSwtMSwtMl0gLWpvaW4oIiIpKSAtZXEgIn5+fn4iKSB7DQogICAgICAgICAgICAgICAgICAgICRBbnMgPSAkQU5TIC1vciAoS2V5UHJlc3NlZENvZGUgKEtleVRyYW5zbGF0ZSgkSykpICRTdG9yZSkNCiAgICAgICAgICAgICAgICB9IGVsc2Ugew0KICAgICAgICAgICAgICAgICAgICAkQW5zID0gJEFOUyAtb3IgKCRLLmNoYXJzKDApIC1pbiAkU3RvcmUuQ2hhcmFjdGVyKQ0KICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgIH0NCiAgICAgICAgfQ0KICAgIH0NCiAgICByZXR1cm4gJEFucw0KfQoKZnVuY3Rpb24gSW52b2tlLVRlcm5hcnkgewpwYXJhbShbYm9vbF0kZGVjaWRlciwgW3NjcmlwdGJsb2NrXSRpZnRydWUsIFtzY3JpcHRibG9ja10kaWZmYWxzZSkNCg0KICAgIGlmICgkZGVjaWRlcikgeyAmJGlmdHJ1ZX0gZWxzZSB7ICYkaWZmYWxzZSB9DQp9CgpmdW5jdGlvbiBUaW1lLUFkaiB7CnBhcmFtKFtQYXJhbWV0ZXIoTWFuZGF0b3J5PSR0cnVlKV1bRG91YmxlXSRNaWxsaXNlY29uZHMsICRJbnB1dFR5cGUgPSAiTWlsbGlzZWNvbmRzIiwgW1N3aXRjaF0kRnVsbEZvcm0pDQoNCiAgICBpZiAoJE1pbGxpc2Vjb25kcyAtZXEgMCkge3JldHVybiAiMCAkKD86KCRmdWxsRm9ybSl7Ik1pbGxpc2Vjb25kcyJ9eyJtcyJ9KSJ9DQogICAgaWYgKCRJbnB1dFR5cGUgLW5lICIiKSB7DQogICAgICAgICRDb252ID0gQHsiTWlsbGlzZWNvbmRzIiA9IDF9DQogICAgICAgICRDb252ICs9IEB7IlNlY29uZHMiID0gMTAwMCokQ29udi5NaWxsaXNlY29uZHN9DQogICAgICAgICRDb252ICs9IEB7Ik1pbnV0ZXMiID0gNjAqJENvbnYuU2Vjb25kc30NCiAgICAgICAgJENvbnYgKz0gQHsiSG91cnMiID0gNjAqJENvbnYuTWludXRlc30NCiAgICAgICAgJENvbnYgKz0gQHsiRGF5cyIgPSAyNCokQ29udi5Ib3Vyc30NCiAgICAgICAgJENvbnYgKz0gQHsiWWVhcnMiID0gMzY1LjI1KiRDb252LkRheXN9DQogICAgICAgIGlmICgkQ29udi5Db250YWluc0tleSgkSW5wdXRUeXBlKSkgeyRNaWxsaXNlY29uZHMgKj0gJENvbnYuJElucHV0VHlwZX0NCiAgICB9DQogICAgJFNpZ24gID0gPzooJE1pbGxpc2Vjb25kcyAtbHQgMCl7LTF9ezF9DQogICAgJE1pbGxpc2Vjb25kcyAqPSAkU2lnbg0KICAgICRTcGFuICA9IE5ldy1UaW1lU3BhbiAoR2V0LURhdGUgLU1pbGxpc2Vjb25kIDApICQoR2V0LURhdGUgLU1pbGxpc2Vjb25kIDApLkFkZE1pbGxpc2Vjb25kcygkTWlsbGlzZWNvbmRzKQ0KICAgICRQcm9wcyA9ICgkc3BhbiB8IGdtIHwgPyB7JF8gLW1hdGNoICJUb3RhbCJ9KS5uYW1lDQogICAgJFNpemVzID0gPzooJEZ1bGxGb3JtKXskUHJvcHMgfCAlIHskXy5zdWJzdHJpbmcoNSl9fXtAKCJkYXlzIiwiaHJzIiwibXMiLCJtaW4iLCJzZWMiKX0NCiAgICAkU2l6ZXMgPSAkU2l6ZXNbMCwxLDMsNCwyXQ0KICAgICRQcm9wcyA9ICRQcm9wc1swLDEsMyw0LDJdDQogICAgJERlZyA9IC0xDQogICAgZG8gew0KICAgICAgICAkREVHKysNCiAgICB9IHdoaWxlIChbU3lzdGVtLk1hdGhdOjpSb3VuZCgkU3Bhbi4oJHByb3BzWyRkZWddKSwyKSAtbHQgMSkNCiAgICAkYW5zID0gJFNwYW4uKCRwcm9wc1skZGVnXSk7JHVuaXQgPSAkU2l6ZXNbJERlZ10NCiAgICBpZiAoJERFRyAtZXEgMCAtYW5kICRTcGFuLigkcHJvcHNbJGRlZ10pIC1nZSAzNjUuMjUpIHskYW5zIC89IDM2NS4yNTskdW5pdD0/OigkRnVsbEZvcm0peyJZZWFycyJ9eyJ5ciJ9fQ0KICAgICRSZXR1cm5hID0gIiQoJFNpZ24qW1N5c3RlbS5NYXRoXTo6Um91bmQoJGFucywyKSkiLCIkdW5pdCINCiAgICAkUmV0dXJuYVsxXSA9ID86KCRSZXR1cm5hWzBdIC1lcSAxKXskUmV0dXJuYVsxXS50cmltRW5kKCJzIil9eyRSZXR1cm5hWzFdfQ0KICAgIGlmICgkUmV0dXJuYVsxXSAtZXEgIm0iKSB7JFJldHVybmFbMV0gKz0gInMifQ0KICAgIFJldHVybiAoJFJldHVybmEgLWpvaW4oIiAiKSkNCn0KCmZ1bmN0aW9uIFdyaXRlLUFQIHsKcGFyYW0oW1BhcmFtZXRlcihNYW5kYXRvcnk9JFRydWUpXVtTdHJpbmddJFRleHQpDQoNCiAgICAkYWNjICA9IEAoKCcrJywnMicpLCgnLScsJzEyJyksKCchJywnMTQnKSwoJyonLCczJykpDQogICAgJHRiICAgPSAnJzskZnVuYyAgID0gJGZhbHNlDQogICAgd2hpbGUgKCRUZXh0LmNoYXJzKDApIC1lcSAneCcpIHskZnVuYyA9ICR0cnVlOyAkVGV4dCA9ICRUZXh0LnN1YnN0cmluZygxKS50cmltKCl9DQogICAgd2hpbGUgKCRUZXh0LmNoYXJzKDApIC1lcSAnPicpIHskdGIgKz0gIiAgICAiOyAkVGV4dCA9ICRUZXh0LnN1YnN0cmluZygxKS50cmltKCl9DQogICAgJFNpZ24gPSAkVGV4dC5jaGFycygwKQ0KICAgICRUZXh0ID0gJFRleHQuc3Vic3RyaW5nKDEpLnRyaW0oKS5yZXBsYWNlKCcveFwnLCcnKS5yZXBsYWNlKCdbLl0nLCdbQ3VycmVudCBEaXJlY3RvcnldJykNCiAgICAkdmVycyA9ICRmYWxzZQ0KICAgIGZvcmVhY2ggKCRhciBpbiAkYWNjKSB7aWYgKCRhclswXSAtZXEgJHNpZ24pIHskdmVycyA9ICR0cnVlOyAkY2xyID0gJGFyWzFdOyAkU2lnbiA9ICJbJHtTaWdufV0gIn19DQogICAgaWYgKCEkdmVycykge1Rocm93ICJJbmNvcnJlY3QgU2lnbiBbJFNpZ25dIFBhc3NlZCEifQ0KICAgIGlmICghKCRTaWxlbnQgLWFuZCAkU2lnbiAtZXEgJ1sqXSAnKSkge2lmICgkZnVuYykgIHtXcml0ZS1Ib3N0IC1ub25ld2xpbmUgLWYgJGNsciAkdGIkU2lnbiRUZXh0fSBlbHNlIHt3cml0ZS1ob3N0IC1mICRjbHIgJHRiJFNpZ24kVGV4dH19DQp9CgpTZXQtQWxpYXMgPzogSW52b2tlLVRlcm5hcnk=))
 # ========================================END=OF=COMPILER===========================================================|
 function Loud {
     $ws = new-object -com wscript.shell
@@ -145,4 +69,3 @@ while ($true) {
     Sleeper $Sleep
     KeyChecks
 }
-
