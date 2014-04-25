@@ -36,6 +36,12 @@ param([Parameter(Mandatory=$True)][String[]]$Key, $Store="^^^")
     return $Ans
 }
 
+function Invoke-Ternary {
+param([bool]$decider, [scriptblock]$iftrue, [scriptblock]$iffalse)
+
+    if ($decider) { &$iftrue} else { &$iffalse }
+}
+
 function Time-Adj {
 param([Parameter(Mandatory=$true)][Double]$Milliseconds, $InputType = "Milliseconds", [Switch]$FullForm)
 
@@ -83,52 +89,8 @@ param([Parameter(Mandatory=$True)][String]$Text)
     if (!($Silent -and $Sign -eq '[*] ')) {if ($func)  {Write-Host -nonewline -f $clr $tb$Sign$Text} else {write-host -f $clr $tb$Sign$Text}}
 }
 
-function Download {
-param([Parameter(Mandatory=$true)][String]$Url, [Alias("F","Folder")][String]$File="&^^&&*", [Switch][Alias("Silent")]$Mute, [Switch]$ShowProgress)
-
-    if (($File -eq "&^^&&*") -or ($File.split("\")[-1].split(".")[1] -eq "")) {
-        $File += "\$($Url.split("?")[0].split("/")[-1])"
-        $File = $File.replace("&^^&&*\","")
-    }
-    $File = $File.replace("..\","$(Resolve-Path "$pwd\..")\").replace(".\","$pwd\").replace("\\","\")
-    if (($File.split("\")[0] -match ":") -or ($File.substring(0,2) -eq "\\")) {} else {$File = "$pwd\$File"}
-    ?:($Mute){}{Write-AP "*Downloading [$url]";Write-AP ">*As [$File]"}
-    $uri = New-Object "System.Uri" "$url"
-    $request = [System.Net.HttpWebRequest]::Create($uri)
-    $request.set_Timeout(15000) #15 second timeout
-    try {
-        $response = $request.GetResponse()
-        $totalLength = $response.get_ContentLength()
-        $responseStream = $response.GetResponseStream()
-        $targetStream = New-Object -TypeName System.IO.FileStream -ArgumentList $File, Create
-        $buffer = new-object byte[] 10KB
-        $count = $responseStream.Read($buffer,0,$buffer.length)
-        $downloadedBytes = $count
-        while ($count -gt 0) {
-            if (!$Mute) {
-                [System.Console]::CursorLeft = 0
-                Clear-Line
-                [System.Console]::Write("Downloaded $(Size-Adj $downloadedBytes) of $(Size-Adj $totalLength)")
-            }
-            if ($ShowProgress) {
-                write-progress -activity "Downloading" -status "File  [$($File.split("\")[-1])]" -percentcomplete ($downloadedBytes/$totalLength*100)
-            }
-            $targetStream.Write($buffer, 0, $count)
-            $count = $responseStream.Read($buffer,0,$buffer.length)
-            $downloadedBytes = $downloadedBytes + $count
-        }
-        if (!$Mute) {"`n";write-AP "+Finished Downloading [$($File.split("\")[-1])]"}
-        $targetStream.Flush()
-        $targetStream.Close()
-        $targetStream.Dispose()
-        $responseStream.Dispose()
-    } catch {
-        if (!$Mute) {Clear-Line;write-AP "-Failed Downloading [$($File.split("\")[-1])] {Error: $(("$_".split(":")[1..100] -join(":")).trim())}"}
-    }
-}
-
+Set-Alias ?: Invoke-Ternary
 # ========================================END=OF=COMPILER===========================================================|
-
 function Loud {
     $ws = new-object -com wscript.shell
     1..100 | % {$ws.SendKeys([char]175)}
