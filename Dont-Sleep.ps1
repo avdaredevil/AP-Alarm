@@ -1,57 +1,6 @@
 # =======================================START=OF=COMPILER==========================================================|
 #    The Following Code was added by AP-Compiler Version [1.0] To Make this program independent of AP-Core Engine
 # ==================================================================================================================|
-function Pause {
-param([String]$PauseQ = "Press any key to continue . . . ")
-
-    Write-Host -noNewline $PauseQ
-    $null = $Host.UI.RawUI.ReadKey("NoEcho, IncludeKeyup")
-    Write-Host ""
-}
-
-function KeyPressed {
-param([Parameter(Mandatory=$True)][String[]]$Key, $Store="^^^")
-
-    if ($Store -eq "^^^" -and $Host.UI.RawUI.KeyAvailable) {$Store = $Host.UI.RawUI.ReadKey("IncludeKeyUp,NoEcho")} else {if ($Store -eq "^^^") {return $False}}
-    $Ans = $False
-    $Key | % {
-        $SOURCE = $_
-        try {
-            $Ans = $Ans -or (KeyPressedCode $SOURCE $Store)
-        } catch {
-            Foreach ($K in $SOURCE) {
-                [String]$K = $K
-                if ($K.length -gt 4 -and ($K[0,1,-1,-2] -join("")) -eq "~~~~") {
-                    $Ans = $ANS -or (KeyPressedCode (KeyTranslate($K)) $Store)
-                } else {
-                    $Ans = $ANS -or ($K.chars(0) -in $Store.Character)
-                }
-            }
-        }
-    }
-    return $Ans
-}
-
-function Clear-Line {
-
-    $Nm = $Host.UI.RawUI.WindowSize.Width-1
-    Write-Host -NoNewLine "$(("`b"*$NM)+(" "*$NM)+("`b"*$NM))"
-}
-
-function Write-AP {
-param([Parameter(Mandatory=$True)][String]$Text)
-
-    $acc  = @(('+','2'),('-','12'),('!','14'),('*','3'))
-    $tb   = '';$func   = $false
-    while ($Text.chars(0) -eq 'x') {$func = $true; $Text = $Text.substring(1).trim()}
-    while ($Text.chars(0) -eq '>') {$tb += "    "; $Text = $Text.substring(1).trim()}
-    $Sign = $Text.chars(0)
-    $Text = $Text.substring(1).trim().replace('/x\','').replace('[.]','[Current Directory]')
-    $vers = $false
-    foreach ($ar in $acc) {if ($ar[0] -eq $sign) {$vers = $true; $clr = $ar[1]; $Sign = "[${Sign}] "}}
-    if (!$vers) {Throw "Incorrect Sign [$Sign] Passed!"}
-    if (!($Silent -and $Sign -eq '[*] ')) {if ($func)  {Write-Host -nonewline -f $clr $tb$Sign$Text} else {write-host -f $clr $tb$Sign$Text}}
-}
-
+iex ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("ZnVuY3Rpb24gUGF1c2UgewpwYXJhbShbU3RyaW5nXSRQYXVzZVEgPSAiUHJlc3MgYW55IGtleSB0byBjb250aW51ZSAuIC4gLiAiKQ0KDQogICAgV3JpdGUtSG9zdCAtbm9OZXdsaW5lICRQYXVzZVENCiAgICAkbnVsbCA9ICRIb3N0LlVJLlJhd1VJLlJlYWRLZXkoIk5vRWNobywgSW5jbHVkZUtleXVwIikNCiAgICBXcml0ZS1Ib3N0ICIiDQp9CgpmdW5jdGlvbiBDbGVhci1MaW5lIHsKCg0KICAgICRObSA9ICRIb3N0LlVJLlJhd1VJLldpbmRvd1NpemUuV2lkdGgtMQ0KICAgIFdyaXRlLUhvc3QgLU5vTmV3TGluZSAiJCgoImBiIiokTk0pKygiICIqJE5NKSsoImBiIiokTk0pKSINCn0KCmZ1bmN0aW9uIEtleVByZXNzZWQgewoKcGFyYW0oW1BhcmFtZXRlcihNYW5kYXRvcnk9JFRydWUpXVtTdHJpbmdbXV0kS2V5LCAkU3RvcmU9Il5eXiIpDQoNCiAgICBpZiAoJFN0b3JlIC1lcSAiXl5eIiAtYW5kICRIb3N0LlVJLlJhd1VJLktleUF2YWlsYWJsZSkgeyRTdG9yZSA9ICRIb3N0LlVJLlJhd1VJLlJlYWRLZXkoIkluY2x1ZGVLZXlVcCxOb0VjaG8iKX0gZWxzZSB7aWYgKCRTdG9yZSAtZXEgIl5eXiIpIHtyZXR1cm4gJEZhbHNlfX0NCiAgICAkQW5zID0gJEZhbHNlDQogICAgJEtleSB8ICUgew0KICAgICAgICAkU09VUkNFID0gJF8NCiAgICAgICAgdHJ5IHsNCiAgICAgICAgICAgICRBbnMgPSAkQW5zIC1vciAoS2V5UHJlc3NlZENvZGUgJFNPVVJDRSAkU3RvcmUpDQogICAgICAgIH0gY2F0Y2ggew0KICAgICAgICAgICAgRm9yZWFjaCAoJEsgaW4gJFNPVVJDRSkgew0KICAgICAgICAgICAgICAgIFtTdHJpbmddJEsgPSAkSw0KICAgICAgICAgICAgICAgIGlmICgkSy5sZW5ndGggLWd0IDQgLWFuZCAoJEtbMCwxLC0xLC0yXSAtam9pbigiIikpIC1lcSAifn5+fiIpIHsNCiAgICAgICAgICAgICAgICAgICAgJEFucyA9ICRBTlMgLW9yIChLZXlQcmVzc2VkQ29kZSAoS2V5VHJhbnNsYXRlKCRLKSkgJFN0b3JlKQ0KICAgICAgICAgICAgICAgIH0gZWxzZSB7DQogICAgICAgICAgICAgICAgICAgICRBbnMgPSAkQU5TIC1vciAoJEsuY2hhcnMoMCkgLWluICRTdG9yZS5DaGFyYWN0ZXIpDQogICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgfQ0KICAgICAgICB9DQogICAgfQ0KICAgIHJldHVybiAkQW5zDQp9Cg==")))
 # ========================================END=OF=COMPILER===========================================================|
-<# |==============================================================================>|    Dont-Sleep System by APoorv Verma [AP] on 10/14/2013 |==============================================================================>|       $) Pinging System to keep the computer awake       $) Automatic detection if user starts to use the computer       $) Status Reportinh       $) Key Press Handling          @) 'Escape'    = Quit          @) 's',"Enter" = Ping Statistics |==============================================================================>| #> [void][reflection.assembly]::loadwithpartialname("system.windows.forms") $Script:OP  = 0 $Script:MIS = 0 $Script:ACK = 0 function Keys ($f = -2){     while ($Host.UI.RawUI.KeyAvailable) {         $Store = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyUp")         If (KeyPressed "-" $Store) {Write-AP "+Ping Recieved [$Script:OP]";$Script:ACK++}         ElseIf ($f -eq -2) {             If (KeyPressed "q","x","~~Escape~~" $Store) {Write-AP "!QUIT...";exit}             ElseIf (KeyPressed "s",'~~Enter~~' $Store) {Write-AP "+Total Sent [$Script:OP] | Reception : $(($Script:OP-$Script:Mis)/$Script:OP*100)%"}         }     }     if ($f -ne "-2") {if ($Script:op -ne $Script:Ack) {Write-AP "-Ping Failed [$Script:OP]";$Script:Mis++;$Script:ACK++}} } while ($true) {     $Script:OP++     [system.windows.forms.sendkeys]::sendwait("-")     Keys -3     foreach ($i in 1..5) {         start-sleep -s 3         Keys         if ($Script:Mis-$Mi -gt 1) {Write-AP "!Away Mode Enabled, please enable manually";pause;[Console]::CursorTop-=1;Clear-Line;$Mi=$Script:Mis}     } }
+<# |==============================================================================>|    Dont-Sleep System by APoorv Verma [AP] on 10/14/2013 |==============================================================================>|       $) Pinging System to keep the computer awake       $) Automatic detection if user starts to use the computer       $) Status Reportinh       $) Key Press Handling          @) 'Esc'       = Quit          @) 's',"Enter" = Ping Statistics |==============================================================================>| #> [void][reflection.assembly]::loadwithpartialname("system.windows.forms") $Script:OP  = 0 $Script:MIS = 0 $Script:ACK = 0 function Keys ($f = -2){     while ($Host.UI.RawUI.KeyAvailable) {         $Store = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyUp")         If (KeyPressed "-" $Store) {Write-AP "+Ping Recieved [$Script:OP]";$Script:ACK++}         ElseIf ($f -eq -2) {             If (KeyPressed "q","x","~~Escape~~" $Store) {Write-AP "!QUIT...";exit}             ElseIf (KeyPressed "s",'~~Enter~~' $Store) {Write-AP "+Total Sent [$Script:OP] | Reception : $(($Script:OP-$Script:Mis)/$Script:OP*100)%"}         }     }     if ($f -ne "-2") {if ($Script:op -ne $Script:Ack) {Write-AP "-Ping Failed [$Script:OP]";$Script:Mis++;$Script:ACK++}} } while ($true) {     $Script:OP++     [system.windows.forms.sendkeys]::sendwait("-")     Keys -3     foreach ($i in 1..5) {         start-sleep -s 3         Keys         if ($Script:Mis-$Mi -gt 1) {Write-AP "!Away Mode Enabled, please enable manually";pause;[Console]::CursorTop-=1;Clear-Line;$Mi=$Script:Mis}     } }
