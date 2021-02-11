@@ -20,27 +20,37 @@ iex ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("
 # ========================================END=OF=COMPILER===========================================================|
 
 [void][reflection.assembly]::loadwithpartialname("system.windows.forms")
-$Script:OP  = 0
-$Script:MIS = 0
+$Script:Loops  = 0
+$Script:TotalMisses = 0
+$Script:AckedMisses = 0
 $Script:ACK = 0
 function Keys ($f = -2){
     while ($Host.UI.RawUI.KeyAvailable) {
         $Store = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyUp")
-        If (KeyPressed "~~F1~~" $Store) {Write-AP "+Ping Recieved [$Script:OP]";$Mi = $Script:MIS;$Script:ACK++}
-        ElseIf ($f -eq -2) {
+        If ((KeyPressed "~~ScrollLock~~" $Store) -and $Script:LastACK -ne $Script:Loops) {
+            Write-AP "+Ping Recieved [$Script:Loops]"
+            $Script:AckedMisses = $Script:TotalMisses
+            $Script:ACK++
+            $Script:LastACK = $Script:Loops
+        } ElseIf ($f -eq -2) {
             If (KeyPressed "q","x","~~Escape~~" $Store) {Write-AP "!QUIT...";exit}
-            ElseIf (KeyPressed "s",'~~Enter~~' $Store) {Write-AP "+Total Sent [$Script:OP] | Reception : $(($Script:OP-$Script:Mis)/$Script:OP*100)%"}
+            ElseIf (KeyPressed "s",'~~Enter~~' $Store) {Write-AP "+Total Sent [$Script:Loops] | Reception : $(($Script:Loops-$Script:TotalMisses)/$Script:Loops*100)%"}
         }
     }
-    if ($f -ne "-2") {if ($Script:op -ne $Script:Ack) {Write-AP "-Ping Failed [$Script:OP]";$Script:Mis++;$Script:ACK++}}
+    if ($f -ne "-2") {if ($Script:Loops -ne $Script:Ack) {Write-AP "-Ping Failed [$Script:Loops]";$Script:TotalMisses++;$Script:ACK++}}
 }
 while ($true) {
-    $Script:OP++
-    [system.windows.forms.sendkeys]::sendwait("{f1}")
+    $Script:Loops++
+    [system.windows.forms.sendkeys]::sendwait("{scrolllock 2}")
+    start-sleep -m 250
     Keys -3
     foreach ($i in 1..5) {
         start-sleep -s 3
         Keys
-        if (!$NoAwayMode -and $Script:Mis-$Mi -gt 1) {Write-AP "!Away Mode Enabled, please enable manually";pause;[Console]::CursorTop-=1;Clear-Line;$Mi=$Script:Mis}
+        if (!$NoAwayMode -and $Script:TotalMisses-$Script:AckedMisses -gt 1) {
+            Write-AP "!Away Mode Enabled, please enable manually"
+            pause
+            [Console]::CursorTop-=1;Clear-Line
+        }
     }
 }
