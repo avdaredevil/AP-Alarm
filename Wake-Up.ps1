@@ -88,13 +88,12 @@ function Alarm {
                 sleep 2
             }
         }
-        default {Write-AP "-Yo, you messed up developer!";exit}
+        default {Write-AP "-Yo, you messed up developer!";Quit}
     }
 }
 function Get-TimeDiff($t) {
     New-TimeSpan (Get-Date) $t
 }
-Alarm;exit
 $OP = 0
 $Trigger = $false
 $otitle = [Console]::Title
