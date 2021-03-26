@@ -31,9 +31,9 @@ Dont-Sleep.ps1 [-NoAwayMode]
 ## Keyboard Commands
 Parameter         | Script | Parameter Set
 ----------------- | ---------- | -------------
-`q | x | Escape`     | Both | Exit script
-`Space | Enter | ScrollLock` | Wake-Up | Show status of sleep for alarm
-`s | Enter ` | Dont-Sleep | Show stats on how many pings were recieved by this script to itself
+`q / x / Escape`     | Both | Exit script
+`Space / Enter / ScrollLock` | Wake-Up | Show status of sleep for alarm
+`s / Enter ` | Dont-Sleep | Show stats on how many pings were recieved by this script to itself
 
 ## Set Up PowerShell [If you've never run a script in PowerShell]
 - Open PowerShell with Admin Access
