@@ -8,14 +8,14 @@ Dont-Sleep.ps1 [-NoAwayMode]
 ```
 - *__Note__: If you've never run PowerShell Scripts before refer to __Setup PowerShell Section__ Below*
 
-### Wake up
+#### Wake up
 - 5 minutes before alarm it will make your computer whisper to you "5 minutes before alarm"
 -  will ring an alarm at the specified time using one of 3 strategies:
   - Look for a local alarm script called [Popcornetune.ps1](Popcornetune.ps1)*, otherwise*
   - Look for videos in `-VideoScanString` which defaults to: `~\Downloads\Videos\*.mp4`*, otherwise*
   - Play a basic beep-boop tune sequence for a while
 
-### Don't Sleep
+#### Don't Sleep
 - Sends the scroll-lock key to itself over and over till break
 - By default, it listens for the key event to know that your computer was focused on the script window
   - This allows auto-pausing of script when you start working on your computer
