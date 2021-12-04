@@ -95,7 +95,7 @@ function Get-TimeDiff($t) {
 }
 #= Main Running Logic ==============================|
 switch ((Detect-PossibleAlarm)) {
-    "Script" {break}
+    "Script" {Write-AP "*Will use the local alarm script to wake you up :)";break}
     "Videos" {Write-AP "!Alarm script is missing, will need to use videos as alarm";break}
     "Simple-Beep" {Write-AP "!Alarm script is missing, and no videos found! Will use basic beeping patterns for final alarm";break}
     default {Write-AP "-Yo, you messed up developer!";Quit}
