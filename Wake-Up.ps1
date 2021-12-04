@@ -58,7 +58,7 @@ function Detect-PossibleAlarm {
     if (test-path $AlarmScript -type leaf) {
         return "Script"
     }
-    if (!(ls $VideoScanString -ea SilentlyContinue)) {
+    if (ls $VideoScanString -ea SilentlyContinue) {
         return "Videos"
     }
     return "Simple-Beep"
